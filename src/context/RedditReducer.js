@@ -3,7 +3,7 @@ const redditReducer = (state, action) => {
     case 'GET_SUBREDDIT':
       return {
         ...state,
-        pages: [action.payload],
+        pages: [...state.pages, action.payload],
         loading: false,
       }
 
@@ -25,6 +25,19 @@ const redditReducer = (state, action) => {
       return {
         ...state,
         loading: true,
+      }
+
+    case 'SET_TEXT':
+      return {
+        ...state,
+        text: action.payload,
+      }
+
+    case 'CLEAR_SUBREDDIT':
+      return {
+        ...state,
+        pages: [],
+        posts: [],
       }
 
     default:

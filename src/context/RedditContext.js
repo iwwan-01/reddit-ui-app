@@ -5,6 +5,7 @@ const RedditContext = createContext()
 
 export const RedditProvider = ({ children }) => {
   const initialState = {
+    text: '',
     pages: [],
     posts: [],
     loading: false,

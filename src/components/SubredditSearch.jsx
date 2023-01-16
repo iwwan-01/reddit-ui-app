@@ -1,58 +1,35 @@
-import { useState, useContext } from 'react'
-import { fetchNextPage, fetchSubreddit } from '../context/RedditActions'
+import { useContext } from 'react'
+import { fetchSubreddit } from '../context/RedditActions'
 import RedditContext from '../context/RedditContext'
 
 function SubredditSearch() {
-  const [text, setText] = useState('')
-  const { pages, posts, dispatch } = useContext(RedditContext)
+  const { text, pages, posts, dispatch } = useContext(RedditContext)
 
   const handleChange = (e) => {
-    setText(e.target.value)
+    const text = e.target.value
+    dispatch({ type: 'SET_TEXT', payload: text })
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
+    //@todo - Fix the nested if statement!
     if (text === '') {
       //@todo - Replace with an alert!
       console.log('Please enter something')
     } else {
-      dispatch({ type: 'SET_LOADING' })
-      const subreddit = await fetchSubreddit(text.toLowerCase(), 25)
+      // @todo - Could be written better!
+      if (pages.length !== 0 && posts.length !== 0) {
+        dispatch({ type: 'CLEAR_SUBREDDIT' })
+      } else dispatch({ type: 'SET_LOADING' })
+      const subreddit = await fetchSubreddit(text.toLowerCase(), 100)
       dispatch({ type: 'GET_SUBREDDIT', payload: subreddit })
-      // This works correctly! ✅
       dispatch({
         type: 'GET_POSTS',
         payload: subreddit.data.children.map((post) => {
           return post
         }),
       })
-
-      // This works correctly! ✅
-      const nextPage = await fetchNextPage(
-        text.toLowerCase(),
-        25,
-        subreddit.data.after
-      )
-      dispatch({ type: 'GET_NEXTPAGE', payload: nextPage })
-
-      // This doesn't work correctly! ❌
-      // @todo - Fix this dispatch function!
-      // --- GET_NEXTPAGE_POSTS
-      //   dispatch({
-      //     type: 'GET_POSTS',
-      //     // There is a mistake somewhere here!  👇🏻
-      //     // GET_POSTS uses map, which returns a brand new array!
-      //     // Therefore the structure of state.posts array changes!
-      //     payload: pages.map((page) => {
-      //       page.data.children.map((post) => {
-      //         return post
-      //       })
-      //     }),
-      //   })
-      // --- GET_NEXTPAGE_POSTS
-
-      setText('')
     }
   }
 
